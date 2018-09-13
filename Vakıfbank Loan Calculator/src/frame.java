@@ -1,30 +1,37 @@
 import java.awt.EventQueue;
 
-import javax.swing.JFrame;
 import java.awt.Component;
 import java.awt.GridLayout;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
+import java.util.StringJoiner;
+import javax.swing.JFrame;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
-import java.util.StringJoiner;
-import java.sql.*;
 
 import javax.swing.JLabel;
 import javax.swing.JTextField;
+import javax.swing.table.DefaultTableModel;
+import javax.swing.table.TableColumn;
 import javax.swing.JComboBox;
-import com.toedter.calendar.JDateChooser;
+import com.toedter.calendar.*;
 import javax.swing.JButton;
+import java.awt.Label;
+import java.awt.Color;
+import javax.swing.JTable;
+import javax.swing.JScrollBar;
+import java.awt.Scrollbar;
+import javax.swing.JScrollPane;
 
 public class frame {
 	
 	private JFrame frame;
 	private JTextField txtLoanAmount;
 	private JComboBox comboBoxExpiration, comboBoxPayment;
-	private JButton btnViewDetails, btnClear;
-	private JLabel lblrate, lblBegin, lblEnd, lblTotalLoan, lblTotalInterest, lblMonthlyPayment, lblTotalPayment;
+	private JButton btnViewDetails;
+	private JLabel lblrate, lblTotalLoan, lblTotalInterest, lblTotalPayment;
 	private JDateChooser dateChooser;
 	
 	private String [] expirationArray = {"3", "6", "12", "18", "24", "32", "36", "48", "60", "72", "120"};
@@ -32,6 +39,7 @@ public class frame {
 	private float interest, principal, calculatedInterest,monthlyPayment, totalPayment; 
 	private int payPer, eTime;
 	private String exTime, beginningDate, endDate;
+	private String d, m, y;
 	
 	/**
 	 * Launch the application.
@@ -42,7 +50,8 @@ public class frame {
 			public void run() {
 				try {
 					frame window = new frame();
-					window.frame.setVisible(true);
+					//window.frame.setVisible(true);
+					window.frame.show();
 				} catch (Exception e) {
 					e.printStackTrace();
 				}
@@ -64,118 +73,161 @@ public class frame {
 	
 	private void initialize() {
 		frame = new JFrame();
-		frame.setBounds(100, 100, 923, 449);
+		frame.setBounds(100, 100, 850, 450);
 		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		frame.getContentPane().setLayout(null);
 		
 		txtLoanAmount = new JTextField();
-		txtLoanAmount.setText("Loan Amount");
-		txtLoanAmount.setBounds(249, 44, 130, 26);
+		txtLoanAmount.setToolTipText("decimal number value");
+		txtLoanAmount.setBounds(220, 40, 130, 35);
 		frame.getContentPane().add(txtLoanAmount);
 		txtLoanAmount.setColumns(10);
 		
 		JLabel lblLoan = new JLabel("Loan Amount: ");
-		lblLoan.setBounds(52, 40, 138, 34);
+		lblLoan.setBounds(50, 40, 130, 35);
 		frame.getContentPane().add(lblLoan);
 		
 		JLabel lblExpirationTime = new JLabel("Expiration Time:");
-		lblExpirationTime.setBounds(52, 95, 138, 34);
+		lblExpirationTime.setBounds(50, 95, 130, 35);
 		frame.getContentPane().add(lblExpirationTime);
 		
 		JLabel lblBankRate = new JLabel("Bank Rate: ");
-		lblBankRate.setBounds(52, 156, 138, 34);
+		lblBankRate.setBounds(50, 150, 130, 35);
 		frame.getContentPane().add(lblBankRate);
 		
 		JLabel lblPaymentPeriod = new JLabel("Payment Period: ");
-		lblPaymentPeriod.setBounds(52, 222, 138, 34);
+		lblPaymentPeriod.setBounds(50, 205, 130, 35);
 		frame.getContentPane().add(lblPaymentPeriod);
 		
 		JLabel lblDate = new JLabel("Date:");
-		lblDate.setBounds(52, 271, 138, 34);
+		lblDate.setBounds(50, 260, 130, 35);
 		frame.getContentPane().add(lblDate);
 		
 		JLabel lblDefaultTaxes = new JLabel("Default Taxes");
-		lblDefaultTaxes.setBounds(52, 332, 138, 16);
+		lblDefaultTaxes.setBounds(50, 310, 138, 16);
 		frame.getContentPane().add(lblDefaultTaxes);
 		
 		JLabel lblBsmv = new JLabel("BSMV: 5 %");
-		lblBsmv.setBounds(52, 360, 102, 16);
+		lblBsmv.setBounds(50, 340, 100, 20);
 		frame.getContentPane().add(lblBsmv);
 		
 		JLabel lblKkdv = new JLabel("KKDV:15 %");
-		lblKkdv.setBounds(52, 396, 102, 16);
+		lblKkdv.setBounds(50, 370, 100, 20);
 		frame.getContentPane().add(lblKkdv);
 		
 		lblrate = new JLabel("Rate");
-		lblrate.setBounds(249, 165, 130, 16);
+		lblrate.setBounds(220, 150, 130, 35);
 		frame.getContentPane().add(lblrate);
 		
 		comboBoxExpiration = new JComboBox(expirationArray);
-		comboBoxExpiration.setBounds(249, 100, 130, 27);
+		comboBoxExpiration.setToolTipText("months");
+		comboBoxExpiration.setBounds(220, 95, 130, 35);
 		frame.getContentPane().add(comboBoxExpiration);
 		
 		comboBoxPayment = new JComboBox(payPerArray);
-		comboBoxPayment.setBounds(249, 222, 130, 27);
+		comboBoxPayment.setToolTipText("months");
+		comboBoxPayment.setBounds(220, 205, 130, 35);
 		frame.getContentPane().add(comboBoxPayment);
 		
 		dateChooser = new JDateChooser();
-		dateChooser.setBounds(249, 279, 130, 26);
+		dateChooser.setToolTipText("pick date");
+		dateChooser.setBounds(220, 260, 130, 35);
 		frame.getContentPane().add(dateChooser);
 		
 		btnViewDetails = new JButton("View Details");
-		btnViewDetails.setBounds(249, 332, 138, 77);
+		btnViewDetails.setToolTipText("click to see results");
+		btnViewDetails.setBounds(220, 310, 130, 80);
 		frame.getContentPane().add(btnViewDetails);
 		
-		JLabel lblBeginningDate = new JLabel("Beginning Date");
-		lblBeginningDate.setBounds(522, 280, 108, 16);
-		frame.getContentPane().add(lblBeginningDate);
-		
-		JLabel lblEndDate = new JLabel("End Date");
-		lblEndDate.setBounds(718, 280, 102, 16);
-		frame.getContentPane().add(lblEndDate);
-		
-		lblBegin = new JLabel("begin");
-		lblBegin.setBounds(522, 312, 108, 16);
-		frame.getContentPane().add(lblBegin);
-		
-		lblEnd = new JLabel("end");
-		lblEnd.setBounds(718, 308, 102, 16);
-		frame.getContentPane().add(lblEnd);
-		
-		btnClear = new JButton("Clear ");
-		btnClear.setBounds(603, 355, 117, 29);
-		frame.getContentPane().add(btnClear);
-		
-		lblTotalLoan = new JLabel("Total Loan");
-		lblTotalLoan.setBounds(522, 49, 108, 16);
+		lblTotalLoan = new JLabel("");
+		lblTotalLoan.setBounds(530, 75, 100, 20);
 		frame.getContentPane().add(lblTotalLoan);
 		
-		lblTotalInterest = new JLabel("Total Interest");
-		lblTotalInterest.setBounds(718, 49, 102, 16);
+		lblTotalInterest = new JLabel("");
+		lblTotalInterest.setBounds(700, 75, 102, 20);
 		frame.getContentPane().add(lblTotalInterest);
 		
-		lblMonthlyPayment = new JLabel("Monthly Payment");
-		lblMonthlyPayment.setBounds(522, 145, 108, 16);
-		frame.getContentPane().add(lblMonthlyPayment);
-		
-		lblTotalPayment = new JLabel("Total Payment");
-		lblTotalPayment.setBounds(718, 145, 102, 16);
+		lblTotalPayment = new JLabel("");
+		lblTotalPayment.setBounds(615, 145, 100, 16);
 		frame.getContentPane().add(lblTotalPayment);
+		
+		Label label = new Label("New label");
+		label.setBackground(Color.BLACK);
+		label.setBounds(440, 40, 1, 369);
+		frame.getContentPane().add(label);
+		
+		JLabel label_1 = new JLabel("Total Loan");
+		label_1.setBounds(530, 40, 100, 35);
+		frame.getContentPane().add(label_1);
+		
+		JLabel label_2 = new JLabel("Total Interest");
+		label_2.setBounds(700, 40, 100, 35);
+		frame.getContentPane().add(label_2);
+		
+		JLabel label_3 = new JLabel("Total Payment");
+		label_3.setBounds(615, 110, 100, 35);
+		frame.getContentPane().add(label_3);
+		
+		JTable table = new JTable();
+		table.setBounds(530, 205, 270, 185);
+		table.setRowHeight(30);
+		table.setBackground(Color.white);
+		table.setForeground(Color.black);
+		DefaultTableModel model = new DefaultTableModel();
+		model.addColumn("Payment Date");
+		model.addColumn("Payment Amount");
+		table.setModel(model);
+		//frame.getContentPane().add(table);
+		JScrollPane pane = new JScrollPane(table);
+		pane.setBounds(530, 206, 270, 185);
+		frame.getContentPane().add(pane);
+		//table.setAutoResizeMode(JTable.AUTO_RESIZE_OFF);
+		
 		btnViewDetails.addActionListener(new ActionListener() {
 			
 			@Override
 			public void actionPerformed(ActionEvent e) {
 				// TODO Auto-generated method stub
 				
+				int len = model.getRowCount();
+				for(int i = 0; i < len; i++) {
+					model.removeRow(0);
+				}
 				check();
 				calculateInterest(principal, interest, eTime);
 				equalizedPurchaseMonthlyPayment(principal, interest, eTime);
 				totalPayment(principal);
 				lblTotalInterest.setText(Float.toString(calculatedInterest));
-				lblMonthlyPayment.setText(Float.toString(monthlyPayment));
 				lblTotalPayment.setText(Float.toString(totalPayment));
 				lblTotalLoan.setText(txtLoanAmount.getText());
 				getDate();
+				int numberOfRows = Integer.valueOf(exTime) / payPer;
+				int month;
+				int year;
+				month = Integer.valueOf(m);
+				year = Integer.valueOf(y);
+				String monthString = "";
+				String yearString;
+				
+				for(int i = 0; i < numberOfRows; i++) {
+					if(month != 12) {
+						month++;
+					} else {
+						month = 1;
+						year++;
+					}
+					
+					if (month < 10) {
+						monthString = "0" + month;
+					} else {
+						monthString = String.valueOf(month);
+					}
+					yearString = String.valueOf(year);
+					
+					String paymentDate = d + "." + monthString + "." + yearString;
+					
+					model.addRow(new String[]{paymentDate, String.valueOf(monthlyPayment)});
+				}
 				
 			}
 		});
@@ -219,17 +271,9 @@ public class frame {
 		DateFormat monthF = new SimpleDateFormat("MM");
 		DateFormat yearF = new SimpleDateFormat("yyyy");
 		
-		String d, m, y;
-		int day, year;
-		
-		lblBegin.setText(df.format(dateChooser.getDate()));
 		d = dayF.format(dateChooser.getDate());
 		m = monthF.format(dateChooser.getDate());
 		y = yearF.format(dateChooser.getDate());
-		day = Integer.parseInt(d);
-		year = Integer.parseInt(y);
-		
-		//endDate(day, m, year, eTime);
 		
 	}
 	
@@ -252,66 +296,4 @@ public class frame {
 	public void totalPayment(float principle) {
 		totalPayment = principle + calculatedInterest;
 	}
-
-	
-	/*public void endDate(int day, String month, int year, int exprationDay ) {
-		
-		String dayS, yearS;
-		int sum = 0;
-		dayS = Integer.toString(day);
-		sum = year + exprationDay;
-		yearS = Integer.toString(year);
-		
-		StringJoiner joiner = new StringJoiner("/");
-		joiner.add(dayS);
-		joiner.add(month);
-		joiner.add(yearS);
-		endDate = joiner.toString();
-		
-	}
-	
-	public String getEndDate() {
-		return beginningDate;
-	}*/
-	
-	/*
-	
-	public void beginningDate(int day, String month, int year) {
-		
-		String dayS, yearS;
-		dayS = Integer.toString(day);
-		yearS = Integer.toString(year);
-		
-		StringJoiner joiner = new StringJoiner("/");
-		joiner.add(dayS);
-		joiner.add(month);
-		joiner.add(yearS);
-		beginningDate = joiner.toString();
-		
-	}
-	
-	public String getBeginningDate() {
-		return beginningDate;
-	}
-	
-	
-	*/
-
-	/*@Override
-	public void actionPerformed(ActionEvent e) {
-		// TODO Auto-generated method stub
-		if (e.getSource()==comboBoxExpiration) {
-			JComboBox cbe = (JComboBox)e.getSource();
-			exTime = (String)cbe.getSelectedItem();
-			System.out.println(exTime + "Selected" );
-		}
-		
-		if (e.getSource()==comboBoxPayment) {
-			JComboBox cbp = (JComboBox)e.getSource();
-			payPer = (Integer)cbp.getSelectedItem();
-			System.out.println(payPer + "Selected" );
-		}
-		
-	}*/
-	
 }
